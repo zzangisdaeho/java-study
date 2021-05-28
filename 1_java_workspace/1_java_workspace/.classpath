@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="00_myFirstProject/src"/>
+	<classpathentry kind="src" path="01_variable/src"/>
+	<classpathentry kind="src" path="02_operator/src"/>
+	<classpathentry kind="src" path="03_control/src"/>
+	<classpathentry kind="src" path="04_array/src"/>
+	<classpathentry kind="src" path="Homework1_Logic/src"/>
+	<classpathentry kind="src" path="practice1/src"/>
+	<classpathentry kind="src" path="practice2/src"/>
+	<classpathentry kind="src" path="practice3/src"/>
+	<classpathentry kind="src" path="practice4/src"/>
+	<classpathentry kind="src" path="practice5/src"/>
+	<classpathentry kind="src" path="practice7/src"/>
+	<classpathentry kind="output" path="00_myFirstProject/bin"/>
+</classpath>

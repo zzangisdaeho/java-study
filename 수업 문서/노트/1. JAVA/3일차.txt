@@ -1,0 +1,95 @@
+System.in = 자바 제공 기본입출력
+
+nextLine(); 을 제외하곤
+enter(\n) x
+Value o
+엔터값 제외 벨류값만 가져옴
+
+nextLine(); 은
+enter + value를 가져옴
+
+String name = nextLine();   입력시
+buffer에는 신우\n 이 입력되었다가 \n까지 다 가져온 후 신우만 데이터에 입력(버퍼는 빈 상태)
+
+int age = nextInt();  입력시
+buffer에는 20\n 이 입력되었다가 \n을 제외한 후 가져온 후 20 데이터에 입력(버퍼는 \n 남은 상태)
+
+다시 String address = nextLine(); 입력시
+buffer에는 \n이 있기 때문에 입력이 끝나있다고 생각하여 바로 종료됨(nextLine은 \n가 있으면 입력이 끝났다 생각함)
+
+
+★버퍼에서 \n으로 인한 충돌 방하는 방법:
+buffer에 엔터가 남아있지 않게, 혹은 buffer에 엔터가 남아있어도 문제 없이 실행하는 방법
+	
+	1. sc.nextLine() 추가 : 버퍼에 남아있는 \n을 가져오는 용도
+		(변수 없이 이 코딩만 추가)
+	
+	2. age를 받을 때 엔터가 남지 않도록 nextLine()을 쓴 후 파싱하기
+		(파싱 = 문자열을 숫자나 실수 불린따위로 바꾸는것)
+		
+		String strAge = sc.nextLine();
+		int age = Integer.parseInt(strAge); (parse 로 파싱함)
+
+		String tall2 = sc.nextLine();
+		double tall = Double.parseDouble(tall2);
+
+		*대문자 주의
+
+
+		★ 위 방법은 아래로 한줄로 치환 가능함
+
+		int age = Integer.parseInt(sc.nextLine());
+		double tall = double.parsedouble(sc.nextLine());
+
+
+불린은 파싱하는방법밖에 없음
+
+추가) char형을 받고 싶을 때 : 한글자로 입력받을 수 있게 한글자로 안내 문구 넣어야함
+
+
+		System.out.print("성별(M/F) : ");
+		char gender = sc.nextLine().charAt(0);
+
+		★ 위 마지막 코드는 아래와 같음
+
+		 String strGender = sc.nextLine();
+		+char gender = strGender.charAT(0);
+		 
+		=char gender = sc.nextLine().charAt(0);
+
+		.charAT(0)는 string 클래스 안에 있는 메소드. 0번째에 있는 문자를 char 로 보내라는 뜻
+		제로베이스(start to 0)로 첫글자가 0번째다.
+
+
+
+연산자 우선순위 :
+단항, 산술, 쉬프트, 비교, 논리, 삼항, 대입, 나열
+
+. : 접근연산자
+
+
+! : 논리 부정 연산자(not)
+
+
+증감 연산자 : ++ , --
+	a = 10 일때
+
+	b = ++a -> a=11 b=11 : a에 ++된 후 b에 들어감. (전위연산자)
+
+	b = a++ -> a=11 b=10 : a가 b로 들어간 후 a에 ++됨 (++이 = 에 양보. 후위연산자)
+
+
+ % : 모듈러 (이름)
+
+b값을 모를때 값을 아는 a와 맞는지 보고싶을땐
+b&&a 를 쓰는 방법도 있다.
+
+중첩 삼항 연산자 : 삼항 연산자(if) 문 안에 삼항연산자가 들어가 있는 형태
+
+
+복합 대입 연산자는 메모리에서 직접계산하여 연산이 빠르기에 선호된다.
+
+
+
+
+

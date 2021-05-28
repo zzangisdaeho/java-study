@@ -1,0 +1,171 @@
+String 클래스
+
+모든 클레스는 heap에 객체를 생성하여 레퍼런스 변수를 통한 접근을 한다.
+
+하지만 문자열은 컴퓨터가 인식하기 위해선 배열을 만들고 각 인덱스에 문자를 넣어주어야 하는데..
+사용 할 문자열의 길이와, 필요한 배열의 수 등을 미리 알고 만들기가 상당히 복잡하다.
+고로 String 클래스만 ★예외로 객체생성 과정을 생략하고 자료형 변수와 같이 쓸 수 있도록 제작하였다.
+
+String 값에 대해서 공통적인 값을 갖는 String pool = Literal pool = Constant pool을 heap에 만들어 놓음.
+같은 문자열을 다른 변수에 저장시 해당 pool에 있는 문자열을 다른 변수들이 지정하게 됨 (주소값 같음)
+
+컴퓨터는 글을 읽는게 아니라 자바 클래스를 읽는다
+
+String끼리 비교할때 == 를 쓰면 주소값을 비교하는것. 내용을 비교하고싶으면 equals를 써야 한다.
+
+String을 따로 객체 생성하여 입력하면 pool 외부에 heap 공간을 만들기 때문에 같은 문자열이어도 주소가 다르다.
+
+String의 java내 주소값을 알기위한 메소드 = "문자열".hashCode
+String의 실제 주소값을 알기위한 메소드 = System.indentityHashCode("문자열")
+
+주요 메서드
+1. .concat(문자열) : append처럼 뒤에 문자열 추가. 근데 그냥 String은 문자열 뒤에 += "내용" 해도 상관없어서 쓸필요가 있을까?
+2. .equals(문자열) : 문자열 값과 비교 -> 파생으로 equalsIgnoreCase() 와, 응용하기 위한 .equals(문자열.toUpperCase, toLowerCase())가 있다.
+3. .subString(int beginIndex) , .subString(int beginIndex, int endIndex) : 
+	매개변수 하나일시 begin인덱스부터의 문자열만 남긴다
+	매개변수 두개일시 begin인덱스부터 end인덱스(말일불포함)까지의 문자열만 남긴다
+4. .replace(char old, char new) : 기존 문자열에서 old 문자를 모두 new문자로 바꾼다
+5. trim() : 양 옆 공백 제거
+6. split(문자열) : 기존 문자열을 주어진 매개변수 문자열로 잘라(매개변수 문자열은 사라짐) ★String[] 으로 반환
+
+
+
+lang 패키지
+
+lang 패키지는 자바의 뼈대가 되는 (자바를 만드는 구성요소 그 자체, 나머지는 부가기능으로 생각해도 좋다)
+클래스들을 모아놓은 폴더이다.
+고로 자바를 실행 시키면 lang 패키지 안에 있는 클래스들을 엮어 java가 실행되므로..
+java 실행창은 그 자체로 lang 안에 있는 클래스들이라 할 수 있다.
+결과적으로 유저는 lang 패키지 안에 있는 클래스들을 갖고 코딩을 하게 되므로,
+lang 패키지 내부의 클래스들을 사용할때는 별도의 import를 하지 않아도 된다.
+
+import는 다른 패키지에 있는 클래스를 사용하기 위해 접근할 주소를 입력해 주는 것인데,
+lang패키지는 이미 접근해 있기 때문이다.
+
+
+StringBuffer 클래스
+
+String과는 다르게 메모리 주소를 할당 후 값(내용)을 변경해도 주소 변동이 없다.
+String과는 다르게 메모리 주소가 버퍼이다.
+쓰레드safe기능이 내장되어 있어, 한번에 한사람만 데이터에 접근이 가능하다. (여러 사용자가 접근하면 느려진다)
+미네랄 자원 하나에 scv가 한마리밖에 못붙는 느낌.
+
+주요 생성자
+1. StringBuffer(int) = 초기 수용량 결정
+2. StringBuffer(문자열) = 초기 값 설정, 초기값 + 16만큼 용량 설정 (용량은 넣다보면 늘어나므로 큰 의미 없다)
+
+주요 메서드
+1. .capacity() : 용량 표기
+2. .length() : 길이 표기 (문자열 갯수)
+3. .append (문자열) : 문자열 추가(후방 추가) return StringBuffer (메소드 체이닝으로 append중복사용 가능)
+4. .insert (int offset, 문자열) : offset 인덱스부터 문자열 추가
+5. .delete (int start, int end) : start 인덱스부터 end 인덱스(마지막 인덱스 불포함) 까지 삭제
+6. .reverse() : 좌우반전
+
+
+StringBuilder 클래스
+StringBuffer와 유사하나 유일하게 다른것은 쓰레드safe기능을 제공하지 않는다는것.
+덕분에 Buffer보다는 빠르게 여러사용자들이 사용 가능하다.
+미네랄 자원 하나에 scv가 여럿 붙을 수 있는 느낌.
+
+Wrapper
+기본 자료형을 객체화 해주는 클래스. 
+항상 쓰던 Integer.parseInt(문자열), Double.parseDouble(문자열) 은 문자열을 int, double로 바꾸는것이지만
+이미 알고 있으니까 넘어가고.
+
+다른 자료형들을 String으로 바꿀땐 String.valueOf()나 Double.toString(double)을 쓴다.
+
+
+
+Date 클래스
+
+여기서 시간은 Milliseconds로 1/1000 초를 의미한다
+
+날짜 관련 클래스
+
+주요 생성자
+Date() = 현재 시간을 표시 (미국식으로)
+Date(long) = 1970년 1월 1일 00시 00분 00초 이후로 long만큼 흐른 시간이 언제인지 표기해줌
+
+주요 메서드
+1. .getTime() : 1970년 1월 1일 00시 00분 00초 이후로 흐른 시간을 가져오는 메소드
+
+
+Calendar 클래스
+
+주요 생성자
+★ Calendar의 생성자들은 모두 protected되어 있기 때문에 상속, 같은 패키지, 같은 클래스가 아니면 접근 불가
+저걸 상속할일부터 없고, 같은 패키지안에 있을수도 없고, 같은 클래스일수는 더더욱 없으니 사실상 생성자를 통해 객체 생성 불가능
+고로 getInstance() 메서드를 통해 객체를 생성할 수 밖에 없다. (메서드 생성방법은 private 되어 있어서 모른다 외워그냥)
+
+주요 메서드
+1. .getInstance() : Calendar클래스를 객체로 가져오기 위한 메서드.
+2. .get(int) : int값에 따라 현재 년, 월, 일, am pm, 시, 분 초 등을 반환.
+	Calendar.YEAR, MOMTH 등 Calendar 내부 필드값(int형)을 대입해서 본다.
+	get(Calendar.YEAR, MONTH, DATE, AM_PM, HOUR, HOUR_OF_DAY, MINUTE, SECOND)
+		AM_PM : AM일시 0, PM일시 1 반환
+		HOUR : 12시간 기반, HOUR_OF_DAY : 24시간 기반
+
+3. .getTimeInMillIs() : Long 자료형 반환.
+	1970년 1월 1일 00시 00분 00초 이후로 지정 일시까지 흐른 시간을 가져오는 메소드
+
+GregorianCalendar 클래스
+Calendar의 후손 클래스, 임의로 지정된 시간 필드를 이용하여 다룰 수 있다.
+매개변수를 통한 생성자로 필드값을 정해 객체생성하여 이용한다.
+
+주요 생성자
+1. GregorianCalendar(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second)
+	=1970년 1월 1일 00시 00분 00초 이후로 지정 일시까지 흐른 시간을 가져오는 메소드
+
+
+SimpleDateFormat 클래스
+
+Date의 날짜, 시간 정보 등을 원하는 format으로 출력하기 위해 사용하는 클래스
+java.text 패키지 소속
+
+주요 생성자
+1. SimpleDateFormat("yyyy-MM-dd-E요일 HH시 mm분 ss초")
+2. SimpleDateFormat("yyyy-MM-dd-E요일 a hh시 mm분 ss초")
+	yyyy = 년도
+	MM = 월 (1월은 0번 인덱스이므로 +1해서 출력해준다)
+	dd = 일
+	E = 요일( 월화수목금토일)
+	HH = 24시 기반 시간
+	hh = 12시 기반 시간
+	a =오전 오후
+	hh = 시간
+	mm = 분
+	ss = 초
+
+주요 메서드
+1. .formet (Date) : ★Date값(날짜 시간 포함된 값 형태)을 기반으로 정해진 필드값을 출력
+
+
+원하는 시간 출력 예시
+		int year = 2020;
+		int month = 3;
+		int date = 28;
+		int hour = 15;
+		int min = 20;
+		int sec = 0;
+		
+		Calendar c = new GregorianCalendar(year, month, date, hour, min, sec); // 형변환으로 Calendar Gregor와 일치하는 Calendar내 매개변수값을 넣어줌
+		long time = c.getTimeInMillis(); // Calendar 내 메소드 getTimeInMillis를 사용해서 1970년 이후로 지정한 시간까지의 값을 Long형으로 받아옴
+		Date endDay = new Date(time); // Date(Long)생성자를 이용하여 70년 이후 long만큼 흐른 시간이 언제인지 Date값으로 가져옴
+		System.out.println(endDay);
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-E요일 HH시 mm분 ss초"); // 생성자를 이용하여 프린트 할 format 요소 배치
+		String fmt = sdf.format(endDay); // SimpleDateFormat 내 format 메소드를 이용하여 String값으로 받음
+		System.out.println(fmt);
+		
+		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd-E요일 a hh시 mm분 ss초");
+		String fmt2 = sdf2.format(endDay);
+		System.out.println(fmt2);
+		
+Milliseconds = 1 / 1000 초
+
+오늘 시간 출력 예시
+		Date today = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat
+				("오늘은 yyyy년 MM월 dd E요일 a hh시 mm분 ss초 입니다");
+		System.out.println(sdf.format(today));

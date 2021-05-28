@@ -1,0 +1,147 @@
+에러모음집
+
+참고) 자료형  기본값
+boolean  false 
+char '\u0000'  
+byte 0  
+short 0  
+int 0   
+long 0L   
+float 0.0f  
+double 0.0d 또는 0.0   
+참조형 변수 null
+
+char A ~ Z = 65 ~ 90
+char a ~ z = 97 ~ 122
+
+
+Docs에서 매개변수 혹은 반환자료형으로 Object라는것은 Object 클래스이다.
+매개변수가 Object이지만 하위 클래스를 포함하는 경우가 많다. (method 설명을 읽어보자)
+
+
+cannot be resolved to a variable
+변수를 찾을 수 없다
+
+Type mismatch: cannot convert from double to float
+형 변환 에러 double -> float 불가능
+
+Invalid character constant
+잘못된 문자 상수. char에 두개 이상의 글자를 사용시 나타남
+
+The final local variable AGE may already have been assigned
+final 의 지역변수인 AGE는 값을 갖고있기에 다른 데이터를 넣을 수 없음.
+
+Type mismatch: cannot convert from int to char
+int값은 char로 자동형변환 불가능. int 4바이트 char 2바이트
+
+Syntax error on token(s), misplaced construct(s)
+토큰의 구문 오류, 잘못 배치된 구문. 구문요소가 제자리에 없음
+
+Incompatible operand types char and String
+String은 char와 비교할 수 없음. char값에 ""를 사용하여 String으로 만들지 않았는지 확인 ''를 써야함
+
+-------------------------------------------------------------------------------------------------------------------------
+계산 오류 :
+char 정수 값은 char로 인쇄 시 그대로 보이나, 실제로는 숫자도 문자로 취급하여 int값으로는 달라지게 됨
+ex) char a = '3'
+System.out.print(a) => 3 (char 를 인쇄하는것이므로 '3'값이 그대로 인쇄됨)
+System.out.print((int)a) => 51 ('3'은 문자열로 3이라는 숫자 또한 문자로 인식해 해당하는 유니코드값 인쇄됨)
+
+char a = sc.nextLine().charAt(7);
+이와 같은 프로세스로 들어가는 char a 값은 ''가 붙은 문자형이 들어간다.
+
+
+번외) char b = 1 입력시
+b에 유니코드 1에 해당하는 값이 입력된다.
+ex char c == 66;
+System.out.println(b) => B (66에 해당하는 유니코드값)
+-------------------------------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------------------------------
+3 변수를 동시에 비교하는것은 불가능하다 (컴퓨터가 2진수라 그렇다하는데 왜인진 잘;)
+-------------------------------------------------------------------------------------------------------------------------
+
+The operator == is undefined for the argument type(s) boolean, int
+
+-------------------------------------------------------------------------------------------------------------------------
+(double) 18.0 / (double) 20.0 = 0.9 가능
+-> / 연산자는 몫을 구하는 기능이다. 실수와 실수는 나눠지게 되어있으므로 소숫점 자리로도 몫이 나오기에
+결과값이 나올 수 있는 것.
+
+(double) 18.0 % (double) 20.0 = 18.0
+
+-> %(모듈러) 연산자는 나머지를 구하는 기능이다. 이 경우 나누는 값의 100%에 해당하지 못하는 값을 돌출하므로
+결과값이 18.0이 나올 수 있는 것.
+-------------------------------------------------------------------------------------------------------------------------
+The field Student.studentName is not visible
+경험 :
+Student 클래스에서 맴버 변수에 접근지정자를 쓰지 않아서 생김. (아무것도 안쓰면 default 접근지정자가 됨)
+
+해결 :
+접근지정자 public을 써서 다른 패키지에서도 사용 가능하게 만들어서 해결
+default일 경우 외부 접근이 불가능해서 찾을 수 없다고 에러메세지가 뜨는것.
+
+참고:
+Student 클래스 안에서 public 메소드를 만들 경우 우회하여 데이터를 변형시키는것은 가능.
+ (default 접근 지정자는 같은 클래스의 접근을 허용하기 때문)
+
+● public : 모든 접근을 허용합니다. 어떠한 클래스가 접근을 하든 모두 허용됩니다.
+
+● protected : 상속받은 클래스 또는 같은 패키지에서만 접근이 가능합니다.
+
+● default : 기본 제한자로써 아무것도 붙지 않고, 자신 클래스 내부와 같은 패키지 내에서만 접근이 가능.
+
+● private : 외부에서 접근이 불가능합니다. 즉, 같은 클래스 내에서만 접근이 가능합니다.
+
+public : 클래스 내부, 동일 패키지, 하위 클래스, 그 외의 영역
+protected : 클래스 내부, 동일 패키지, 하위 클래스
+default : 클래스 내부, 동일 패키지
+private : 클래스 내부
+
+접근 영역: public > protected > default > private
+-------------------------------------------------------------------------------------------------------------------------
+
+NullPointerException
+
+null 값은 무의 영역이라 추후 해당 변수를 비교하는 코딩이 나올시 비교할 껀덕지가 없다.
+(null은 0도 아니다. 그냥 존재하지 않는것.  0이라도 있으면 비교하지..)
+보통 String 초기값으로 null을 쓰지만, 리터럴이 들어가기 전에 비교를 해야하는 상황이라면
+""를 넣는다.
+
+
+자바 상위버젼 1.8에 호환시키기!
+pacet -> runtimes를 바꿔주고,
+build path -> Libraries를 바꿔준다.
+
+java.lang.ArrayIndexOutOfBoundsException : 9
+배열의 Index 범위를 벗어남 (9번째가 넘어감)
+
+The import java.sql.Date collides with another import statement
+~~ import한 클래스가 다른 import한 클래스와 충돌한다.
+
+
+LocalNum cannot be resolved to a variable
+LocalNum 은 변수로 해결될 수 없다. (LocalNum 이라는 변수를 찾을 수 없다.)
+
+
+cannot be resolved to a type
+타입을 찾을 수 없다.
+
+The static field B_KindsOfVariable2.staticNum should be accessed in a static way
+staticNum 은 static의 방법으로 접근하지 왜 객체생성험? (비효율적)
+
+
+return 은 여러개 반환 불가. return이 나오면 한번 반환하고 함수는 바로 끝난다!
+String 이 null 값인지 비교하려면 equals가 아닌 ==으로 비교한다
+
+★null과 문자열은 비교 불가능하다. null은 빈 공간이기 때문에 비교할 대상이 아예 없기 때문이다.
+
+★★★if 조건식이 메소드인경우 메소드 실행한다. 실행해봐야 리턴값으로 참인지 거짓인지 비교할 수 있기 때문이다.
+	if문이 아니더라도 조건식 안에 메소드는 항상 실행한다 (실험함)
+
+
+맴버변수 선언칸에서
+stack에 대한 공간을 만들고 안에 데이터를 집어넣을 순 있지만
+★heap 공간 안에 heap을 만드는것은 불가능하다.
+
+static은 프로그램이 시작할 때 메모리에 로드되고 종료할 때 없어집니다 ~

@@ -1,0 +1,155 @@
+입출력
+
+입력 스트림과 출력 스트림은 컴퓨터본체를 기준으로 생각하자.
+
+바이트기반 스트림은 1바이트씩 쪼개서 읽는다.
+
+문자 기반 스트림은 데이터를 통째로 다 가져와서 읽는다.
+
+문자만 Reader Writer를 쓰는 이유는
+
+문자는 클래스이기 때문에 하나라도 깨지면 클래스 자체가 깨지는데,
+
+차나 인트는 기본형 자료이기 때문에 깨졌다 다시 붙여도 문제가 없는것.
+
+
+★입출력 스트림을 사용하고 나면 반드시 닫아줘야 한다.
+
+
+기반 스트림 : 데이터가 흐르는 스트림. 단독으로 사용하거나 보조스트림으로 감싼다.
+	혼자 사용할 수 있으므로 생성자 매개변수로 다른 스트림이 필수조건이 아니다. 
+	(input이 output을 포함하는건 구조의문제라 별개다)
+
+보조 스트림 : 기반 스트림을 감싸서 보조. 데이터가 흐르진 않는다. 고로 단독사용 불가능하다. 기반 스트림을 감싸서 사용해야 한다.
+	혼자 사용할 수 없으므로 생성자 매개변수로 다른 스트림이 필수조건이다.
+
+Output, InputStreamWriter 는 stream인 주제에 문자열 스트림이다. 예외로 딱 2개니까 이것만 외우자
+
+바이트 스트림과 문자열 스트림은 메소드 매개변수도 각각 byte[]와 char[]이다.
+
+
+
+{} 중괄호를 기준으로 그 안에 선언된 지역변수의 사용범위가 결정된다.
+
+
+
+byte로 저장하면 메모장에 숫자가 찍히는 이유 : byte 숫자형 단위이기 때문이다.
+
+byte형에서 불러오면 char로 자동형변환해서 다시 보여주는것 뿐
+
+
+Write() 사용 예시
+	public void fileSave() {
+		try (FileWriter fw = new FileWriter("b_char.txt");){
+			fw.write("와 ~ IO 진짜 재밌잖아?!");
+			fw.write('A');
+			fw.write(' ');
+			
+			char[] cArr = {'a', 'p', 'p', 'l', 'e'};
+			fw.write(cArr);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+
+Read() 사용 예시
+	public void fileOpen2() {
+		try(FileInputStream fis = new FileInputStream("a_byte.txt");) {
+		
+			int value;
+			while((value = fis.read()) != -1) {
+				System.out.print((char)value + " ");
+			}
+		}
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+
+
+
+-----------------------------------------------------------------------------------------------
+
+대충 많이쓰일것 같은 Stream, Reader, Writer
+
+FileInputStream
+FileOutputStream
+
+FileReader
+FileWriter
+
+----------------------------------------------------------------------------------------------
+생성자 파일명, true 할 시 이어쓰기로 된다.
+ex) try(FileWriter fw = new FileWriter(file, true)){}
+
+스트림은 FIFO방식 stack이랑 반대
+
+
+보조스트림
+
+생성자 안의 매개변수가 스트림인것. 단독으로 사용 불가능하기 때문에 다른 스트림 필요.
+ex)
+	FileInputStream fis = new FileInputStream("Sample.txt")
+	BufferedInputStream bis = new BufferedInputStream(fis);
+	=BufferedInputStream bis = new FileInputStream("Sample.txt")
+
+
+보조스트림 종류 (외워)
+
+
+문자변환
+	byte기반을 문자기반으로, 문자기반을 byte기반으로 변화시켜주는 스트림
+	InputStreamReader = InputStream 을 Reader로 바꾸어 문자를 읽어오겠다 라는 의미.
+	OutputStreamWriter = Writer를 OutputStream로 바꿔주는것.
+
+입출력 성능 Buffered
+	BufferedInputStream/Reader : 버퍼에 뭉텅이로 데이터를 넣어주고 한번에 전송
+	BufferedOutputStream/Writer :
+	
+기본 데이터 타입 출력
+	데이터 자료형의 크기를 지키면서 파일 전송.
+	입력한 순서와 출력할 데이터 크기의 순서가 같아야 한다는 치명적인 단점 존재.
+	그래서 잘 안씀 ㅎㅎ
+	
+객체 입출력	ObjectOuput/Input Stream ★(reader writer 없다)
+	직렬화를 통해 객체를 (문자가 아닌 데이터의 틀) 데이터화 하여 파일이나 db로 출력해주는것.
+	객체 생성 할 Class에 ★Implements Serializable 하여야 직렬화 가능.
+	★(transient 키워드를 사용한 필드는 직렬화에서 제외. 해당 필드에는 기본값만 저장이 된다.)
+	역직렬화 는 반대로하는것.(입력)
+
+	ObjectInputStream : 내가 저장한 상황에서 1이라도 바뀌면 불러올 수 없다. serial number, U/I 때문
+
+	★★★★ObjectInputStream에서 readObject()로 읽을때는 정확한 형변환을 해주어야 정확하게 언마샬링을 할 수 있다.
+
+
+★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+
+객체 배열 작동 원리
+
+1. writeObject(object) 하는 순서대로 저장된다. object1 , object2....
+
+2. readObject() 는 저장된 순서대로의 object를 반환한다. object1, object2....
+
+3. 고로 첫번째 저장한 객체를 객체배열 안에 인덱스 요소로 한다면, 첫번째 읽어오는 요소는 무조건 객체배열 내 인덱스객체이다.
+
+4. 여기서 객체배열 인덱스요소를 레퍼런스로 형변환 해서 받으려면 당연히 cast에러가 뜬다(형변환 에러)
+
+5. 내가 객체배열을 인덱스번호 0~9 까지 총 10개를 writeObject했을때.. 저장된 파일에는 object0 ~ object9 까지의 index 객체가 담길것이다
+
+6. 여기서 5개짜리의 객체배열을 만들어 readObject() 하면, object0 ~ object4 까지 총 5개의 인덱스 객체를 가져올 것이다.
+
+7. 반대로 15개짜리의 객체배열을 만들어 readObject() 하면, object0 ~ object9까지 총 10개의 인덱스 객체가 가져와 지다가
+저장된 object가 동나게 되어, 끝에 다다랐다는 예외인 EOFException이 나타나게 된다!!
+
+8. 다만 EOFException은 특이하여 예외가 발생해도 바로 리턴하지 않고 에러가 발생하며 실행은 되는데...
+docs를 읽어보면 EOF는 끝에 다다를시 throw exception을 하기 보단 특정 값(아직 모름)을 리턴한다고 적혀있다.
+즉 예외로 해당 메서드가 끝나는게 아니라 특정값을 리턴할 뿐이기에 실행은 가능하고,
+ ★ catch로 잡아줄 경우 문제가 없는것처럼 실행이 가능하다.
+이 경우 15개의 객체배열에서 10개까지는 writeObject로 들어간 object의 순서대로 읽어오게 되고, 나머지는 null이 되는듯 하다.(실험)
