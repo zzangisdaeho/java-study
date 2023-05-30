@@ -1,0 +1,234 @@
+package co.playv.operation.common.util;
+
+
+import org.jboss.jandex.PrimitiveType;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class DtoComparator {
+
+    private static Set<Class> primitiveClasses = Arrays.stream(new Class[]{
+            String.class, Boolean.class, Integer.class, Character.class, Byte.class, Short.class, Double.class, Long.class, Float.class, PrimitiveType.Primitive.class
+    }).collect(Collectors.toSet());
+
+    private static Set<String> primitiveClassNames = primitiveClasses.stream().map(Class::getName).collect(Collectors.toSet());
+
+
+    /**
+     * ISSAC
+     * filed에 Getter로 접근하여 비교
+     *
+     * @param before
+     * @param after
+     * @return
+     * @throws Exception
+     */
+    @Deprecated
+    public static Map<String, Object[]> compareDtos(Object before, Object after) throws Exception {
+        if (before == null || after == null) {
+            throw new IllegalArgumentException("Objects cannot be null");
+        }
+
+        if (!before.getClass().equals(after.getClass())) {
+            throw new IllegalArgumentException("Objects are not of the same type");
+        }
+
+        Map<String, Object[]> differences = new HashMap<>();
+
+        Method[] methods = before.getClass().getMethods();
+        for (Method method : methods) {
+            if (method.getName().startsWith("get") && method.getParameterCount() == 0) {
+                Object value1 = method.invoke(before);
+                Object value2 = method.invoke(after);
+
+                if (value1 == null && value2 == null) {
+                    continue;
+                }
+
+                if (value1 == null || value2 == null || !value1.equals(value2)) {
+                    // If the field is a List, compare the Lists
+                    if (value1 instanceof List || value2 instanceof List) {
+                        List<?> list1 = value1 != null ? (List<?>) value1 : Collections.emptyList();
+                        List<?> list2 = value2 != null ? (List<?>) value2 : Collections.emptyList();
+                        if (!list1.equals(list2)) {
+                            for (int i = 0; i < Math.max(list1.size(), list2.size()); i++) {
+                                Object val1 = (i < list1.size()) ? list1.get(i) : null;
+                                Object val2 = (i < list2.size()) ? list2.get(i) : null;
+                                if (!Objects.equals(val1, val2)) {
+                                    if (val1 != null && !isPrimitiveOrWrapper(val1.getClass())
+                                            || val2 != null && !isPrimitiveOrWrapper(val2.getClass())) {
+                                        Map<String, Object[]> nestedDifferences = compareDtos(val1, val2);
+                                        for (Map.Entry<String, Object[]> entry : nestedDifferences.entrySet()) {
+                                            differences.put(firstCharToLowercase(method.getName().substring(3)) + "[" + i + "]." + entry.getKey(), entry.getValue());
+                                        }
+                                    } else {
+                                        differences.put(firstCharToLowercase(method.getName().substring(3)) + "[" + i + "]", new Object[]{val1, val2});
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Else If the field is a complex type, recursively compare the nested objects
+                    else if (value1 != null && !isPrimitiveOrWrapper(value1.getClass())
+                            || value2 != null && !isPrimitiveOrWrapper(value2.getClass())) {
+                        Map<String, Object[]> nestedDifferences = compareDtos(value1, value2);
+                        differences.putAll(nestedDifferences);
+                    } else {
+                        differences.put(firstCharToLowercase(method.getName().substring(3)), new Object[]{value1, value2});
+                    }
+                }
+            }
+        }
+
+        return differences;
+    }
+
+    public static String firstCharToLowercase(String input) {
+        if (input == null || input.length() == 0) {
+            return input;
+        }
+
+        return Character.toLowerCase(input.charAt(0)) + input.substring(1);
+    }
+
+
+    /**
+     * ISSAC
+     * field에 직접 접근하여 비교
+     * List가 primitive인 경우 하나의 그룹으로 비교하도록 변경
+     * @param before
+     * @param after
+     * @return
+     * @throws IllegalAccessException
+     */
+    public static Map<String, Object[]> compareObjects(Object before, Object after) throws IllegalAccessException {
+        if (before == null || after == null) {
+            throw new IllegalArgumentException("Objects cannot be null");
+        }
+
+        if (!before.getClass().equals(after.getClass())) {
+            throw new IllegalArgumentException("Objects are not of the same type");
+        }
+
+        Map<String, Object[]> differences = new HashMap<>();
+
+        Field[] fields = before.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+
+            Object value1 = field.get(before);
+            Object value2 = field.get(after);
+
+            if (value1 == null && value2 == null) {
+                continue;
+            } else if (value1 instanceof Collection || value2 instanceof Collection) {
+                List<?> list1 = value1 != null ? (List<?>) value1 : Collections.emptyList();
+                List<?> list2 = value2 != null ? (List<?>) value2 : Collections.emptyList();
+                if (!list1.equals(list2)) {
+                    if (primitiveClassNames.contains(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0].getTypeName())) {
+                        differences.put(field.getName(), new Object[]{value1, value2});
+                    } else {
+                        for (int i = 0; i < Math.max(list1.size(), list2.size()); i++) {
+                            Object val1 = (i < list1.size()) ? list1.get(i) : null;
+                            Object val2 = (i < list2.size()) ? list2.get(i) : null;
+                            Map<String, Object[]> nestedDifferences = compareObjects(val1, val2);
+                            for (Map.Entry<String, Object[]> entry : nestedDifferences.entrySet()) {
+                                differences.put(field.getName() + "[" + i + "]." + entry.getKey(), entry.getValue());
+                            }
+                        }
+                    }
+                }
+            } else if (value1 == null || value2 == null || !value1.equals(value2)) {
+                // 필드가 기본형 혹은 Enum타입이 아니라면 recursive하게 동작
+                if (value1 != null && (!primitiveClasses.contains(value1.getClass()) && !Enum.class.isAssignableFrom(value1.getClass()))
+                        || value2 != null && (!primitiveClasses.contains(value2.getClass())) && !Enum.class.isAssignableFrom(value2.getClass())) {
+                    Map<String, Object[]> nestedDifferences = compareObjects(value1, value2);
+                    for (Map.Entry<String, Object[]> entry : nestedDifferences.entrySet()) {
+                        differences.put(field.getName() + "." + entry.getKey(), entry.getValue());
+                    }
+                } else {
+                    differences.put(field.getName(), new Object[]{value1, value2});
+                }
+            }
+        }
+        return differences;
+    }
+
+    /**
+     * ISSAC
+     * field에 직접 접근하여 비교
+
+     * @param before
+     * @param after
+     * @return
+     * @throws IllegalAccessException
+     */
+    @Deprecated
+    public static Map<String, Object[]> compareObjectsV1(Object before, Object after) throws IllegalAccessException {
+        if (before == null || after == null) {
+            throw new IllegalArgumentException("Objects cannot be null");
+        }
+
+        if (!before.getClass().equals(after.getClass())) {
+            throw new IllegalArgumentException("Objects are not of the same type");
+        }
+
+        Map<String, Object[]> differences = new HashMap<>();
+
+        Field[] fields = before.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);  // Make the field accessible
+
+            Object value1 = field.get(before);
+            Object value2 = field.get(after);
+
+            if (value1 == null && value2 == null) {
+                continue;
+            }
+
+            if (value1 instanceof Collection || value2 instanceof Collection) {
+                List<?> list1 = value1 != null ? (List<?>) value1 : Collections.emptyList();
+                List<?> list2 = value2 != null ? (List<?>) value2 : Collections.emptyList();
+                if (!list1.equals(list2)) {
+                    for (int i = 0; i < Math.max(list1.size(), list2.size()); i++) {
+                        Object val1 = (i < list1.size()) ? list1.get(i) : null;
+                        Object val2 = (i < list2.size()) ? list2.get(i) : null;
+                        if (val1 != null && !isPrimitiveOrWrapper(val1.getClass())
+                                || val2 != null && !isPrimitiveOrWrapper(val2.getClass())) {
+                            Map<String, Object[]> nestedDifferences = compareObjects(val1, val2);
+                            for (Map.Entry<String, Object[]> entry : nestedDifferences.entrySet()) {
+                                differences.put(field.getName() + "[" + i + "]." + entry.getKey(), entry.getValue());
+                            }
+                        } else if (!Objects.equals(val1, val2)) {
+                            differences.put(field.getName() + "[" + i + "]", new Object[]{val1, val2});
+                        }
+                    }
+                }
+            } else if (value1 == null || value2 == null || !value1.equals(value2)) {
+                // If the field is a complex type, recursively compare the nested objects
+                if (value1 != null && !isPrimitiveOrWrapper(value1.getClass())
+                        || value2 != null && !isPrimitiveOrWrapper(value2.getClass())) {
+                    Map<String, Object[]> nestedDifferences = compareObjects(value1, value2);
+                    for (Map.Entry<String, Object[]> entry : nestedDifferences.entrySet()) {
+                        differences.put(field.getName() + "." + entry.getKey(), entry.getValue());
+                    }
+                } else {
+                    differences.put(field.getName(), new Object[]{value1, value2});
+                }
+            }
+        }
+
+        return differences;
+    }
+
+    private static boolean isPrimitiveOrWrapper(Class<?> clazz) {
+        return clazz.isPrimitive() || (clazz.equals(Boolean.class) || clazz.equals(Integer.class)
+                || clazz.equals(Character.class) || clazz.equals(Byte.class) || clazz.equals(Short.class)
+                || clazz.equals(Double.class) || clazz.equals(Long.class) || clazz.equals(Float.class)
+                || clazz.isEnum());
+    }
+}
